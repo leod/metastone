@@ -24,7 +24,7 @@ class Node {
 		this.player = player;
 	}
 
-	private boolean canFurtherExpanded() {
+	private boolean canExpandFurther() {
 		return !validTransitions.isEmpty();
 	}
 
@@ -34,6 +34,10 @@ class Node {
 
 		try {
 			newState.getLogic().performGameAction(newState.getActivePlayer().getId(), action);
+			if (newState.getValidActions().isEmpty()) {
+				newState.endTurn();
+				newState.startTurn(newState.getActivePlayerId());
+			}
 		} catch (Exception e) {
 			System.err.println("Exception on action: " + action + " state decided: " + state.gameDecided());
 			e.printStackTrace();
@@ -81,6 +85,7 @@ class Node {
 	public void initState(GameContext state, List<GameAction> validActions) {
 		this.state = state.clone();
 		this.validTransitions = new ArrayList<GameAction>(validActions);
+
 	}
 
 	public boolean isExpandable() {
@@ -106,7 +111,7 @@ class Node {
 		Node current = this;
 		visited.add(this);
 		while (!current.isTerminal()) {
-			if (current.canFurtherExpanded()) {
+			if (current.canExpandFurther()) {
 				current = current.expand();
 				visited.add(current);
 				break;

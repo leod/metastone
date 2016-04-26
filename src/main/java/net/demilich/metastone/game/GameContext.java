@@ -427,7 +427,7 @@ public class GameContext implements Cloneable, IDisposable {
 		}
 	}
 
-	private void startTurn(int playerId) {
+	public void startTurn(int playerId) {
 		turn++;
 		logic.startTurn(playerId);
 		onGameStateChanged();

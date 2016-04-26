@@ -24,6 +24,7 @@ class UctPolicy implements ITreePolicy {
 				bestValue = uctValue;
 			}
 		}
+		assert(selected != null);
 		return selected;
 	}
 
