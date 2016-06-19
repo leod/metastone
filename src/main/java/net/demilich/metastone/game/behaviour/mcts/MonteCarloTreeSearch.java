@@ -38,7 +38,14 @@ public class MonteCarloTreeSearch extends Behaviour {
 			// logger.info("MCTS selected best action {}", validActions.get(0));
 			return validActions.get(0);
 		}
-		Node root = new Node(null, player.getId());
+
+		for (GameAction action : validActions) {
+			System.out.println("ACTION:" + action.toString());
+		}
+		System.out.println("ACTIONS DONE");
+		return validActions.get(0);
+
+		/*Node root = new Node(null, player.getId());
 		root.initState(context, validActions);
 		UctPolicy treePolicy = new UctPolicy();
 		for (int i = 0; i < ITERATIONS; i++) {
@@ -46,7 +53,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 		}
 		GameAction bestAction = root.getBestAction();
 		// logger.info("MCTS selected best action {}", bestAction);
-		return bestAction;
+		return bestAction;*/
 	}
 
 }
