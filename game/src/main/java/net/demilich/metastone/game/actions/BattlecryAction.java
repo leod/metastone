@@ -24,12 +24,32 @@ public class BattlecryAction extends GameAction {
 	}
 
 	private final SpellDesc spell;
+
 	private boolean resolvedLate = false;
 	private Condition condition;
 
 	protected BattlecryAction(SpellDesc spell) {
 		this.spell = spell;
 		setActionType(ActionType.BATTLECRY);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		BattlecryAction that = (BattlecryAction) o;
+
+		if (resolvedLate != that.resolvedLate) return false;
+		return spell != null ? spell.equals(that.spell) : that.spell == null;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = spell != null ? spell.hashCode() : 0;
+		result = 31 * result + (resolvedLate ? 1 : 0);
+		return result;
 	}
 
 	public boolean canBeExecuted(GameContext context, Player player) {

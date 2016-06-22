@@ -1,7 +1,10 @@
 package net.demilich.metastone.game.behaviour.mcts;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import net.demilich.metastone.game.GameContext;
 import net.demilich.metastone.game.Player;
@@ -10,14 +13,23 @@ import net.demilich.metastone.game.behaviour.PlayRandomBehaviour;
 import net.demilich.metastone.game.logic.GameLogic;
 
 class ActionNode extends SearchNode {
-    private int actionIndex = 0;
-    private List<GameAction> actions;
-    private List<ChanceNode> children;
+    private final List<GameAction> actions;
+    private final List<Integer> actionIndices;
+    private final List<ChanceNode> children;
 
     ActionNode(SearchContext searchContext, SearchState searchState, List<GameAction> actions) {
         super(searchContext, searchState);
         this.actions = actions;
-        this.children = new LinkedList<>();
+        this.children = new ArrayList<>();
+
+        // TODO: Needed?
+        actionIndices = new ArrayList<Integer>();
+        for (int i = 0; i < actions.size(); i++)
+            actionIndices.add(i);
+    }
+
+    List<GameAction> getActions() {
+        return actions;
     }
 
     List<ChanceNode> getChildren() {
@@ -26,22 +38,25 @@ class ActionNode extends SearchNode {
 
     @Override
     boolean getEndSelection() {
-        return actionIndex < actions.size();
+        return !actionIndices.isEmpty();
     }
 
     @Override
     SearchNode select(ITreePolicy policy, List<SearchNode> visited) {
-        if (actionIndex == actions.size()) {
+        if (actionIndices.isEmpty()) {
             return policy.select(this);
         } else {
             return expand();
         }
     }
 
-    ChanceNode expand() {
-        GameAction action = actions.get(actionIndex);
-        ChanceNode child = new ChanceNode(getSearchContext(), getSearchState(), action, actionIndex); //getSearchContext().addChanceNode(getSearchState(), action);
-        actionIndex++;
+    private ChanceNode expand() {
+        int indexIndex = ThreadLocalRandom.current().nextInt(actionIndices.size());
+        int index = actionIndices.get(indexIndex);
+        actionIndices.remove(indexIndex);
+
+        GameAction action = actions.get(index);
+        ChanceNode child = new ChanceNode(getSearchContext(), getSearchState(), action, index);
         children.add(child);
         return child;
     }
@@ -88,8 +103,6 @@ class ActionNode extends SearchNode {
             player.setBehaviour(new PlayRandomBehaviour());
         }
 
-        //simulation.playTurn();
-
         while (!simulation.gameDecided()) {
             simulation.startTurn(simulation.getActivePlayerId());
             while (simulation.playTurn()) {}
@@ -103,10 +116,13 @@ class ActionNode extends SearchNode {
 
     @Override
     void dump(int level) {
-        if (level == 5)
-            return;
         super.dump(level);
-        System.out.println(actionIndex + " of " + actions.size() + " :: p" + getGameContext().getActivePlayerId() + ", " + getGameContext().getActivePlayer().getMana() + "mana, " + getGameContext().getActivePlayer().getHero().getHp() + " --> " + children.size());
+        System.out.println(children.size() + " of " + actions.size() +
+                           " :: p" + getGameContext().getActivePlayerId() +
+                           ", " + getGameContext().getActivePlayer().getMana() +
+                           "mana, " + getGameContext().getActivePlayer().getHero().getHp() +
+                           " --> " + children.size() +
+                           " (hash: " + getSearchState().hashCode() + ")");
         for (ChanceNode child : children) {
             child.dump(level + 1);
         }

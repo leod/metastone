@@ -13,7 +13,7 @@ import net.demilich.metastone.game.cards.Card;
 public class MonteCarloTreeSearch extends Behaviour {
 	//private final static Logger logger = LoggerFactory.getLogger(MonteCarloTreeSearch.class);
 
-	private static final int ITERATIONS = 20000;
+	private static final int ITERATIONS = 5000;
 
     private int nesting = 0;
 

@@ -28,6 +28,25 @@ public class DiscoverAction extends GameAction {
 		setActionType(ActionType.DISCOVER);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		DiscoverAction that = (DiscoverAction) o;
+
+		if (groupIndex != that.groupIndex) return false;
+		return spell != null ? spell.equals(that.spell) : that.spell == null;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = groupIndex;
+		result = 31 * result + (spell != null ? spell.hashCode() : 0);
+		return result;
+	}
+
 	public boolean canBeExecuted(GameContext context, Player player) {
 		if (getCondition() == null) {
 			return true;

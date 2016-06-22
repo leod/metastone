@@ -15,7 +15,7 @@ public class TreeBehaviour extends Behaviour {
     private ChanceNode node;
     private List<SearchNode> visited;
 
-    private ChanceNode selection;
+    private ChanceNode selection = null;
 
     TreeBehaviour(ITreePolicy policy, ChanceNode node, List<SearchNode> visited) {
         this.policy = policy;
@@ -46,6 +46,14 @@ public class TreeBehaviour extends Behaviour {
         ActionNode outcomeNode = node.getOutcomeNode(context.clone(), validActions);
         visited.add(outcomeNode);
         selection = (ChanceNode) outcomeNode.select(policy, visited);
+
+        /*if (node.outcomeNodes.size() > 1) {
+            ActionNode a = node.outcomeNodes.get(0);
+            ActionNode b = node.outcomeNodes.get(1);
+            boolean x = false;
+            assert false;
+        }*/
+
 
         return validActions.get(selection.getActionIndex());
     }

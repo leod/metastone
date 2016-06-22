@@ -7,11 +7,14 @@ import net.demilich.metastone.game.actions.GameAction;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 class ChanceNode extends SearchNode {
+    private static final int MAX_OUTCOMES = 26;
+
     private final GameAction action;
     private int actionIndex;
-    private final List<ActionNode> outcomeNodes = new ArrayList<>();
+    final List<ActionNode> outcomeNodes = new ArrayList<>();
 
     ChanceNode(SearchContext searchContext, SearchState searchState, GameAction action, int actionIndex) {
         super(searchContext, searchState);
@@ -30,7 +33,18 @@ class ChanceNode extends SearchNode {
     ActionNode getOutcomeNode(GameContext nextGameContext, List<GameAction> actions) {
         SearchState nextSearchState = new SearchState(nextGameContext);
 
+        boolean isDiscover = (!actions.isEmpty() && actions.get(0).getActionType() == ActionType.DISCOVER);
+
+        if (isDiscover) {
+            for (GameAction action : actions)
+                assert action.getActionType() == ActionType.DISCOVER;
+        }
+
         for (ActionNode child : outcomeNodes) {
+            // For discover, we also have to filter by the given choices
+            if (isDiscover && !actions.equals(child.getActions()))
+                continue;
+
             if (nextSearchState.equals(child.getSearchState()))
                 return child;
         }
@@ -48,8 +62,10 @@ class ChanceNode extends SearchNode {
 
     @Override
     SearchNode select(ITreePolicy policy, List<SearchNode> visited) {
+        if (outcomeNodes.size() >= MAX_OUTCOMES)
+            return outcomeNodes.get(ThreadLocalRandom.current().nextInt(outcomeNodes.size()));
+
         GameContext nextGameContext = getGameContext().clone();
-        //assert(nextGameContext.equals(getGameContext()));
         /*if (!nextGameContext.equals(getGameContext())) {
             boolean x = nextGameContext.equals(getGameContext());
         }*/
@@ -73,7 +89,7 @@ class ChanceNode extends SearchNode {
             }*/
 
             if (nextGameContext.getValidActions().isEmpty()) {
-                System.out.println("asdf " + action);
+                //System.out.println("asdf " + action);
                 nextGameContext.endTurn();
                 nextGameContext.startTurn(nextGameContext.getActivePlayerId());
             }

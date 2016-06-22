@@ -63,7 +63,7 @@ public class GameContext implements Cloneable, IDisposable {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		//if (o == null || getClass() != o.getClass()) return false;
 
 		GameContext that = (GameContext) o;
 
@@ -72,7 +72,6 @@ public class GameContext implements Cloneable, IDisposable {
 		if (activePlayer != that.activePlayer) return false;
 		if (turn != that.turn) return false;
 		if (actionsThisTurn != that.actionsThisTurn) return false;
-		// Probably incorrect - comparing Object[] arrays with Arrays.equals
 		if (!Arrays.equals(players, that.players)) return false;
 		if (winner != null && that.winner == null) return false;
 		if (winner != null && winner.getId() != that.winner.getId()) return false;
