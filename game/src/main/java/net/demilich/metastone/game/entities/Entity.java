@@ -15,6 +15,30 @@ public abstract class Entity extends CustomCloneable {
 	private int id = IdFactory.UNASSIGNED;
 	private int ownerIndex = -1;
 
+	@Override
+	public boolean equals(Object o) {
+		// TODO: Attributes?
+
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Entity entity = (Entity) o;
+
+		if (id != entity.id) return false;
+		if (ownerIndex != entity.ownerIndex) return false;
+		if (name != null ? !name.equals(entity.name) : entity.name != null) return false;
+		return attributes != null ? attributes.equals(entity.attributes) : entity.attributes == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = name != null ? name.hashCode() : 0;
+		result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
+		result = 31 * result + id;
+		result = 31 * result + ownerIndex;
+		return result;
+	}
+
 	public Object getAttribute(Attribute attribute) {
 		return attributes.get(attribute);
 	}
@@ -98,5 +122,6 @@ public abstract class Entity extends CustomCloneable {
 	public void setOwner(int ownerIndex) {
 		this.ownerIndex = ownerIndex;
 	}
+
 
 }

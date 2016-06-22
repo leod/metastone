@@ -46,4 +46,20 @@ public class Desc<T> {
 		}
 		return (int)storedValue;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Desc<?> desc = (Desc<?>) o;
+
+		return arguments != null ? arguments.equals(desc.arguments) : desc.arguments == null;
+
+	}
+
+	@Override
+	public int hashCode() {
+		return arguments != null ? arguments.hashCode() : 0;
+	}
 }

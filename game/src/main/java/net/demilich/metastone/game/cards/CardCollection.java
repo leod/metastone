@@ -9,12 +9,27 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
 public class CardCollection implements Iterable<Card>, Cloneable {
-
 	private List<Card> cards = new ArrayList<Card>();
 
 	public CardCollection() {
 
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		CardCollection cards1 = (CardCollection) o;
+
+		return cards != null ? cards.equals(cards1.cards) : cards1.cards == null;
+	}
+
+	@Override
+	public int hashCode() {
+		return cards != null ? cards.hashCode() : 0;
+	}
+
 
 	public void add(Card card) {
 		cards.add(card);

@@ -1,5 +1,8 @@
 package net.demilich.metastone.game.behaviour.mcts;
 
+import net.demilich.metastone.game.actions.GameAction;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import java.util.Random;
 
 class UctPolicy implements ITreePolicy {
@@ -10,10 +13,10 @@ class UctPolicy implements ITreePolicy {
 	private static final double C = 1 / Math.sqrt(2);
 
 	@Override
-	public Node select(Node parent) {
-		Node selected = null;
+	public ChanceNode select(ActionNode parent) {
+		ChanceNode selected = null;
 		double bestValue = Double.NEGATIVE_INFINITY;
-		for (Node child : parent.getChildren()) {
+		for (ChanceNode child : parent.getChildren()) {
 			double uctValue = child.getVisits() == 0 ? 1000000
 					: child.getScore() / (double) child.getVisits() + C * Math.sqrt(Math.log(parent.getVisits()) / child.getVisits())
 							+ random.nextDouble() * EPSILON;
@@ -24,7 +27,7 @@ class UctPolicy implements ITreePolicy {
 				bestValue = uctValue;
 			}
 		}
-		assert(selected != null);
+		assert selected != null;
 		return selected;
 	}
 

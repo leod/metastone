@@ -11,10 +11,11 @@ import net.demilich.metastone.game.behaviour.Behaviour;
 import net.demilich.metastone.game.cards.Card;
 
 public class MonteCarloTreeSearch extends Behaviour {
-
 	//private final static Logger logger = LoggerFactory.getLogger(MonteCarloTreeSearch.class);
 
-	private static final int ITERATIONS = 500;
+	private static final int ITERATIONS = 20000;
+
+    private int nesting = 0;
 
 	@Override
 	public String getName() {
@@ -23,7 +24,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 
 	@Override
 	public List<Card> mulligan(GameContext context, Player player, List<Card> cards) {
-		List<Card> discardedCards = new ArrayList<Card>();
+		List<Card> discardedCards = new ArrayList<>();
 		for (Card card : cards) {
 			if (card.getBaseManaCost() >= 4) {
 				discardedCards.add(card);
@@ -33,27 +34,39 @@ public class MonteCarloTreeSearch extends Behaviour {
 	}
 
 	@Override
-	public GameAction requestAction(GameContext context, Player player, List<GameAction> validActions) {
+	public GameAction requestAction(GameContext gameContext, Player player, List<GameAction> validActions) {
+		assert nesting == 0;
+
+		/*for (GameAction action : validActions) {
+			System.out.println("ACTION:" + action.toString());
+		}
+		System.out.println("ACTIONS DONE");*/
+
+		if (validActions.isEmpty())
+			return null;
+
 		if (validActions.size() == 1) {
 			// logger.info("MCTS selected best action {}", validActions.get(0));
 			return validActions.get(0);
 		}
 
-		for (GameAction action : validActions) {
-			System.out.println("ACTION:" + action.toString());
-		}
-		System.out.println("ACTIONS DONE");
-		return validActions.get(0);
+		nesting++;
 
-		/*Node root = new Node(null, player.getId());
-		root.initState(context, validActions);
+		SearchContext searchContext = new SearchContext();
+		ActionNode root = searchContext.addActionNode(new SearchState(gameContext), validActions);
+
 		UctPolicy treePolicy = new UctPolicy();
 		for (int i = 0; i < ITERATIONS; i++) {
 			root.process(treePolicy);
 		}
-		GameAction bestAction = root.getBestAction();
-		// logger.info("MCTS selected best action {}", bestAction);
-		return bestAction;*/
+
+		GameAction bestAction = validActions.get(root.getBestActionIndex());
+		//root.dump(0);
+		System.out.println("MCTS selected best action " + bestAction.toString());
+
+		nesting--;
+
+		return bestAction;
 	}
 
 }

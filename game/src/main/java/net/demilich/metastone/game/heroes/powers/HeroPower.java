@@ -17,6 +17,24 @@ public class HeroPower extends SpellCard {
 		setLocation(CardLocation.HERO_POWER);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		HeroPower heroPower = (HeroPower) o;
+
+		return used == heroPower.used;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + used;
+		return result;
+	}
+
 	public int hasBeenUsed() {
 		return used;
 	}

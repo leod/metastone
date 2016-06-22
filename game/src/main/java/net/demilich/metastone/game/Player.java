@@ -77,6 +77,47 @@ public class Player extends CustomCloneable {
 		return new Player(this);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Player player = (Player) o;
+
+		if (id != player.id) return false;
+		if (mana != player.mana) return false;
+		if (maxMana != player.maxMana) return false;
+		if (lockedMana != player.lockedMana) return false;
+		if (name != null ? !name.equals(player.name) : player.name != null) return false;
+		if (hero != null ? !hero.equals(player.hero) : player.hero != null) return false;
+		if (deckName != null ? !deckName.equals(player.deckName) : player.deckName != null) return false;
+		if (deck != null ? !deck.equals(player.deck) : player.deck != null) return false;
+		if (hand != null ? !hand.equals(player.hand) : player.hand != null) return false;
+		if (setAsideZone != null ? !setAsideZone.equals(player.setAsideZone) : player.setAsideZone != null)
+			return false;
+		if (graveyard != null ? !graveyard.equals(player.graveyard) : player.graveyard != null) return false;
+		if (minions != null ? !minions.equals(player.minions) : player.minions != null) return false;
+		return secrets != null ? secrets.equals(player.secrets) : player.secrets == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = name != null ? name.hashCode() : 0;
+		result = 31 * result + (hero != null ? hero.hashCode() : 0);
+		result = 31 * result + (deckName != null ? deckName.hashCode() : 0);
+		result = 31 * result + (deck != null ? deck.hashCode() : 0);
+		result = 31 * result + (hand != null ? hand.hashCode() : 0);
+		result = 31 * result + (setAsideZone != null ? setAsideZone.hashCode() : 0);
+		result = 31 * result + (graveyard != null ? graveyard.hashCode() : 0);
+		result = 31 * result + (minions != null ? minions.hashCode() : 0);
+		result = 31 * result + (secrets != null ? secrets.hashCode() : 0);
+		result = 31 * result + id;
+		result = 31 * result + mana;
+		result = 31 * result + maxMana;
+		result = 31 * result + lockedMana;
+		return result;
+	}
+
 	public IBehaviour getBehaviour() {
 		return behaviour;
 	}

@@ -23,6 +23,28 @@ public class Hero extends Actor {
 		this.setHeroPower(heroPower);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		Hero hero = (Hero) o;
+
+		if (heroClass != hero.heroClass) return false;
+		if (heroPower != null ? !heroPower.equals(hero.heroPower) : hero.heroPower != null) return false;
+		return weapon != null ? weapon.equals(hero.weapon) : hero.weapon == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (heroClass != null ? heroClass.hashCode() : 0);
+		result = 31 * result + (heroPower != null ? heroPower.hashCode() : 0);
+		result = 31 * result + (weapon != null ? weapon.hashCode() : 0);
+		return result;
+	}
+
 	public void activateWeapon(boolean active) {
 		if (weapon != null) {
 			weapon.setActive(active);

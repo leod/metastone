@@ -54,6 +54,24 @@ public abstract class Card extends Entity {
 	}
 
 	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		Card card = (Card) o;
+
+		return cardId != null ? cardId.equals(card.cardId) : card.cardId == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (cardId != null ? cardId.hashCode() : 0);
+		return result;
+	}
+
+	@Override
 	public Card clone() {
 		Card clone = (Card) super.clone();
 		clone.attributes = new EnumMap<>(getAttributes());

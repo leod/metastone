@@ -1,9 +1,6 @@
 package net.demilich.metastone.game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +37,7 @@ public class GameContext implements Cloneable, IDisposable {
 	private final TargetLogic targetLogic = new TargetLogic();
 	private TriggerManager triggerManager = new TriggerManager();
 	private final HashMap<Environment, Object> environment = new HashMap<>();
+
 	private final List<CardCostModifier> cardCostModifiers = new ArrayList<>();
 
 	protected int activePlayer = -1;
@@ -60,6 +58,38 @@ public class GameContext implements Cloneable, IDisposable {
 		this.logic = logic;
 		this.deckFormat = deckFormat;
 		this.logic.setContext(this);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		GameContext that = (GameContext) o;
+
+		// TODO: Environment? Card cost modifiers?
+
+		if (activePlayer != that.activePlayer) return false;
+		if (turn != that.turn) return false;
+		if (actionsThisTurn != that.actionsThisTurn) return false;
+		// Probably incorrect - comparing Object[] arrays with Arrays.equals
+		if (!Arrays.equals(players, that.players)) return false;
+		if (winner != null && that.winner == null) return false;
+		if (winner != null && winner.getId() != that.winner.getId()) return false;
+		if (result != that.result) return false;
+		return turnState == that.turnState;
+	}
+
+	@Override
+	public int hashCode() {
+		int result1 = Arrays.hashCode(players);
+		result1 = 31 * result1 + activePlayer;
+		result1 = 31 * result1 + (winner != null ? winner.hashCode() : 0);
+		result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
+		result1 = 31 * result1 + (turnState != null ? turnState.hashCode() : 0);
+		result1 = 31 * result1 + turn;
+		result1 = 31 * result1 + actionsThisTurn;
+		return result1;
 	}
 
 	protected boolean acceptAction(GameAction nextAction) {
