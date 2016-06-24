@@ -57,5 +57,6 @@ abstract class SearchNode {
         for (int i = 0; i < level; i++)
             System.out.print("\t");
         System.out.print("[" + this.score + "/" + this.visits + "] ");
+        System.out.print("(" + ((float) this.score / this.visits) + "%) ");
     }
 }

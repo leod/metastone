@@ -13,7 +13,9 @@ import net.demilich.metastone.game.cards.Card;
 public class MonteCarloTreeSearch extends Behaviour {
 	//private final static Logger logger = LoggerFactory.getLogger(MonteCarloTreeSearch.class);
 
-	private static final int ITERATIONS = 5000;
+	private static final int ITERATIONS = 30000;
+
+	private SearchContext searchContext = new SearchContext();
 
     private int nesting = 0;
 
@@ -52,8 +54,9 @@ public class MonteCarloTreeSearch extends Behaviour {
 
 		nesting++;
 
-		SearchContext searchContext = new SearchContext();
-		ActionNode root = searchContext.addActionNode(new SearchState(gameContext), validActions);
+		searchContext = new SearchContext();
+		SearchState searchState = new SearchState(gameContext);
+		ActionNode root = searchContext.addActionNode(searchState, validActions);
 
 		UctPolicy treePolicy = new UctPolicy();
 		for (int i = 0; i < ITERATIONS; i++) {
@@ -61,7 +64,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 		}
 
 		GameAction bestAction = validActions.get(root.getBestActionIndex());
-		//root.dump(0);
+		root.dump(0);
 		System.out.println("MCTS selected best action " + bestAction.toString());
 
 		nesting--;

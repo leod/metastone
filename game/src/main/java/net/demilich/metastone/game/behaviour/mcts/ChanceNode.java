@@ -55,6 +55,10 @@ class ChanceNode extends SearchNode {
         return child;
     }
 
+    private int getMaxOutcomes() {
+        return (int) Math.pow(getVisits(), 0.2) + 2;
+    }
+
     @Override
     boolean getEndSelection() {
         return false;
@@ -62,7 +66,7 @@ class ChanceNode extends SearchNode {
 
     @Override
     SearchNode select(ITreePolicy policy, List<SearchNode> visited) {
-        if (outcomeNodes.size() >= MAX_OUTCOMES)
+        if (outcomeNodes.size() >= getMaxOutcomes())
             return outcomeNodes.get(ThreadLocalRandom.current().nextInt(outcomeNodes.size()));
 
         GameContext nextGameContext = getGameContext().clone();
@@ -108,7 +112,7 @@ class ChanceNode extends SearchNode {
     @Override
     void dump(int level) {
         super.dump(level);
-        System.out.println(action + " ==> " + outcomeNodes.size());
+        System.out.println(action + " ==> " + outcomeNodes.size() + " (vs " + getMaxOutcomes() + ")");
         for (ActionNode outcome : outcomeNodes)
             outcome.dump(level + 1);
     }
