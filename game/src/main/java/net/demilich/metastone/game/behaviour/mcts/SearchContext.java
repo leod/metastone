@@ -8,31 +8,35 @@ import java.util.HashMap;
 import java.util.List;
 
 public class SearchContext {
-    private HashMap<SearchState, ActionNode> actionNodes = new HashMap<SearchState, ActionNode>();
-    //private HashMap<SearchState, ChanceNode> chanceNodes;
+    private ITreePolicy policy;
+    private double rewardDiscount;
 
-    public SearchNode getActionNode(SearchState state) {
-        SearchNode node = actionNodes.get(state);
-        assert node != null;
-        return node;
+    private HashMap<SearchState, ActionNode> actionNodes = new HashMap<>();
+
+    SearchContext(ITreePolicy policy, double rewardDiscount) {
+        this.policy = policy;
+        this.rewardDiscount = rewardDiscount;
     }
 
-    /*public SearchNode getChanceNode(SearchState state) {
-        SearchNode node = chanceNodes.get(state);
-        assert node != null;
-        return node;
-    }*/
+    ITreePolicy getTreePolicy() {
+        return policy;
+    }
 
-    public ActionNode addActionNode(SearchState state, List<GameAction> actions) {
+    double getRewardDiscount() {
+        return rewardDiscount;
+    }
+
+    ActionNode getActionNode(SearchState state, List<GameAction> actions) {
+        /*ActionNode node = actionNodes.get(state);
+        if (node == null) {
+            node = new ActionNode(this, state, actions);
+            actionNodes.put(state, node);
+        }*/
+
         ActionNode node = new ActionNode(this, state, actions);
-        actionNodes.put(state, node);
+
+        node.useCount++;
+
         return node;
     }
-
-    /*public ChanceNode addChanceNode(SearchState state, GameAction action) {
-        ChanceNode node = new ChanceNode(this, state, action);
-        chanceNodes.put(state, node);
-        return node;
-    }*/
-
 }

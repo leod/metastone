@@ -540,7 +540,13 @@ public class GameLogic implements Cloneable {
 			return null;
 		}
 
-		Card card = deck.getRandom();
+		Determinization det = context.getDeterminization();
+		Card card;
+		if (det == null)
+			card = deck.getRandom();
+		else
+			card = deck.get(det.drawCard(deck.getCount()));
+
 		return drawCard(playerId, card, source);
 	}
 

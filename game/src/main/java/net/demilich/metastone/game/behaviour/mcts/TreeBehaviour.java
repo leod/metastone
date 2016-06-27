@@ -11,16 +11,19 @@ import java.util.List;
 public class TreeBehaviour extends Behaviour {
     private int count = 0;
 
-    private ITreePolicy policy;
     private ChanceNode node;
     private List<SearchNode> visited;
 
+    private ActionNode outcomeNode = null;
     private ChanceNode selection = null;
 
-    TreeBehaviour(ITreePolicy policy, ChanceNode node, List<SearchNode> visited) {
-        this.policy = policy;
+    TreeBehaviour(ChanceNode node, List<SearchNode> visited) {
         this.node = node;
         this.visited = visited;
+    }
+
+    ActionNode getOutcomeNode() {
+        return outcomeNode;
     }
 
     ChanceNode getSelection() {
@@ -43,18 +46,11 @@ public class TreeBehaviour extends Behaviour {
         assert count == 0;
         count++;
 
-        ActionNode outcomeNode = node.getOutcomeNode(context.clone(), validActions);
-        visited.add(outcomeNode);
-        selection = (ChanceNode) outcomeNode.select(policy, visited);
+        return validActions.get(0);
 
-        /*if (node.outcomeNodes.size() > 1) {
-            ActionNode a = node.outcomeNodes.get(0);
-            ActionNode b = node.outcomeNodes.get(1);
-            boolean x = false;
-            assert false;
-        }*/
+        /*outcomeNode = node.getOutcomeNode(context.clone(), validActions);
+        selection = (ChanceNode) outcomeNode.select(visited);
 
-
-        return validActions.get(selection.getActionIndex());
+        return validActions.get(selection.getActionIndex());*/
     }
 }

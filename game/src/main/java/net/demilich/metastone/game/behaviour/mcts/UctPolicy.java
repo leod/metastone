@@ -4,19 +4,24 @@ import java.util.Random;
 
 class UctPolicy implements ITreePolicy {
 
-	private static final double EPSILON = 1e-5;
-	private static final Random random = new Random();
+	private final double EPSILON = 1e-7;
+	private final Random random = new Random();
 
-	private static final double C = 3.0 * 1 / Math.sqrt(2);
+	private final double C = 0.75;
 
 	@Override
 	public ChanceNode select(ActionNode parent) {
 		ChanceNode selected = null;
 		double bestValue = Double.NEGATIVE_INFINITY;
 		for (ChanceNode child : parent.getChildren()) {
-			double uctValue = child.getVisits() == 0 ? 1000000
-					: child.getScore() / (double) child.getVisits() + C * Math.sqrt(Math.log(parent.getVisits()) / child.getVisits())
-							+ random.nextDouble() * EPSILON;
+			if (child.getVisits() == 0) {
+				boolean x = false;
+
+			}
+			//assert child.getVisits() != 0;
+
+			double uctValue = child.getScore() / (double) child.getVisits() + C * Math.sqrt(Math.log(parent.getVisits()) / child.getVisits())
+							  + random.nextDouble() * EPSILON;
 
 			// small random number to break ties randomly in unexpanded nodes
 			if (uctValue > bestValue) {
@@ -24,7 +29,11 @@ class UctPolicy implements ITreePolicy {
 				bestValue = uctValue;
 			}
 		}
-		assert selected != null;
+
+		if (selected == null) {
+			boolean x;
+		}
+		//assert selected != null;
 		return selected;
 	}
 

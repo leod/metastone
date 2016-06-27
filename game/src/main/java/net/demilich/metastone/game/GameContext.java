@@ -2,6 +2,7 @@ package net.demilich.metastone.game;
 
 import java.util.*;
 
+import net.demilich.metastone.game.logic.Determinization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,8 @@ public class GameContext implements Cloneable, IDisposable {
 
 	private boolean ignoreEvents;
 
+	private Determinization determinization = null;
+
 	public GameContext(Player player1, Player player2, GameLogic logic, DeckFormat deckFormat) {
 		this.getPlayers()[PLAYER_1] = player1;
 		player1.setId(PLAYER_1);
@@ -76,6 +79,8 @@ public class GameContext implements Cloneable, IDisposable {
 		if (winner != null && that.winner == null) return false;
 		if (winner != null && winner.getId() != that.winner.getId()) return false;
 		if (result != that.result) return false;
+		if (determinization != null && that.determinization == null) return false;
+		if (determinization != null && determinization.getNumDrawnCards() != that.determinization.getNumDrawnCards()) return false;
 		return turnState == that.turnState;
 	}
 
@@ -88,6 +93,7 @@ public class GameContext implements Cloneable, IDisposable {
 		result1 = 31 * result1 + (turnState != null ? turnState.hashCode() : 0);
 		result1 = 31 * result1 + turn;
 		result1 = 31 * result1 + actionsThisTurn;
+		result1 = 31 * result1 + (determinization != null ? determinization.getNumDrawnCards() : 0);
 		return result1;
 	}
 
@@ -123,10 +129,36 @@ public class GameContext implements Cloneable, IDisposable {
 			clone.cardCostModifiers.add(cardCostModifier.clone());
 		}
 		for (Environment key : getEnvironment().keySet()) {
-			clone.getEnvironment().put(key, getEnvironment().get(key));
+			Object o = getEnvironment().get(key);
+			Object oClone;
+			//System.out.println(key.toString() + ": " + o.toString() + " is a " + o.getClass().toString());
+			if (o instanceof Stack) {
+				oClone = ((Stack) o).clone();
+			} else {
+				oClone = o;
+			}
+			clone.getEnvironment().put(key, oClone);
 		}
 		clone.getLogic().setLoggingEnabled(false);
+		clone.determinization = (determinization != null ? determinization.clone() : null);
 		return clone;
+	}
+
+	public GameContext determinize() {
+		assert determinization == null;
+
+		GameContext clone = clone();
+		clone.determinization = new Determinization();
+
+		return clone;
+	}
+
+	public void setDeterminization(Determinization determinization) {
+		this.determinization = determinization;
+	}
+
+	public Determinization getDeterminization() {
+		return determinization;
 	}
 
 	@Override

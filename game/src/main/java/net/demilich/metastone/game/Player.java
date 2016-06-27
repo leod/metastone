@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.demilich.metastone.game.behaviour.IBehaviour;
 import net.demilich.metastone.game.behaviour.human.HumanBehaviour;
+import net.demilich.metastone.game.cards.Card;
 import net.demilich.metastone.game.cards.CardCollection;
 import net.demilich.metastone.game.decks.Deck;
 import net.demilich.metastone.game.entities.Actor;
@@ -49,9 +50,18 @@ public class Player extends CustomCloneable {
 		for (Minion minion : otherPlayer.getMinions()) {
 			minions.add(minion.clone());
 		}
-		this.hand.addAll(otherPlayer.hand);
+		for (Card card : otherPlayer.hand) {
+			this.hand.add(card.clone());
+		}
+		for (Entity entity : otherPlayer.graveyard) {
+			this.graveyard.add((Entity) entity.clone());
+		}
+		for (Entity entity : otherPlayer.setAsideZone) {
+			this.setAsideZone.add((Entity) entity.clone());
+		}
+		/*this.hand.addAll(otherPlayer.hand);
 		this.graveyard.addAll(otherPlayer.graveyard);
-		this.setAsideZone.addAll(otherPlayer.setAsideZone);
+		this.setAsideZone.addAll(otherPlayer.setAsideZone);*/
 		this.secrets.addAll(otherPlayer.secrets);
 		this.id = otherPlayer.id;
 		this.mana = otherPlayer.mana;
@@ -95,7 +105,8 @@ public class Player extends CustomCloneable {
 		if (hand != null ? !hand.equals(player.hand) : player.hand != null) return false;
 		if (setAsideZone != null ? !setAsideZone.equals(player.setAsideZone) : player.setAsideZone != null)
 			return false;
-		if (graveyard != null ? !graveyard.equals(player.graveyard) : player.graveyard != null) return false;
+		// TODO: Needs to be compared independently of order
+		//if (graveyard != null ? !graveyard.equals(player.graveyard) : player.graveyard != null) return false;
 		if (minions != null ? !minions.equals(player.minions) : player.minions != null) return false;
 		return secrets != null ? secrets.equals(player.secrets) : player.secrets == null;
 	}
@@ -108,7 +119,8 @@ public class Player extends CustomCloneable {
 		result = 31 * result + (deck != null ? deck.hashCode() : 0);
 		result = 31 * result + (hand != null ? hand.hashCode() : 0);
 		result = 31 * result + (setAsideZone != null ? setAsideZone.hashCode() : 0);
-		result = 31 * result + (graveyard != null ? graveyard.hashCode() : 0);
+		// TODO: Needs to be compared independently of order
+		//result = 31 * result + (graveyard != null ? graveyard.hashCode() : 0);
 		result = 31 * result + (minions != null ? minions.hashCode() : 0);
 		result = 31 * result + (secrets != null ? secrets.hashCode() : 0);
 		result = 31 * result + id;

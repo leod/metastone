@@ -9,13 +9,18 @@ import java.util.concurrent.ThreadLocalRandom;
 import net.demilich.metastone.game.GameContext;
 import net.demilich.metastone.game.Player;
 import net.demilich.metastone.game.actions.GameAction;
+import net.demilich.metastone.game.behaviour.GreedyOptimizeMove;
 import net.demilich.metastone.game.behaviour.PlayRandomBehaviour;
+import net.demilich.metastone.game.behaviour.heuristic.WeightedHeuristic;
+import net.demilich.metastone.game.behaviour.threat.GameStateValueBehaviour;
 import net.demilich.metastone.game.logic.GameLogic;
 
 class ActionNode extends SearchNode {
     private final List<GameAction> actions;
     private final List<Integer> actionIndices;
     private final List<ChanceNode> children;
+
+    int useCount = 0;
 
     ActionNode(SearchContext searchContext, SearchState searchState, List<GameAction> actions) {
         super(searchContext, searchState);
@@ -42,9 +47,9 @@ class ActionNode extends SearchNode {
     }
 
     @Override
-    SearchNode select(ITreePolicy policy, List<SearchNode> visited) {
+    SearchNode select(List<SearchNode> visited) {
         if (actionIndices.isEmpty()) {
-            return policy.select(this);
+            return getSearchContext().getTreePolicy().select(this);
         } else {
             return expand();
         }
@@ -63,36 +68,40 @@ class ActionNode extends SearchNode {
 
     int getBestActionIndex() {
         int best = -1;
-        int bestScore = Integer.MIN_VALUE;
+        double bestX = Float.NEGATIVE_INFINITY;
         for (ChanceNode child : children) {
-            if (child.getScore() > bestScore) {
+            double x = child.getScore() / child.getVisits();
+            if (x  > bestX) {
                 best = child.getActionIndex();
-                bestScore = child.getScore();
+                bestX = x;
             }
         }
 
         return best;
     }
 
-    void process(ITreePolicy treePolicy) {
+    void process() {
         List<SearchNode> visited = new LinkedList<>();
         SearchNode current = this;
         visited.add(this);
         while (!current.isTerminal()) {
             boolean endSelection = current.getEndSelection();
-            current = current.select(treePolicy, visited);
+            current = current.select(visited);
             visited.add(current);
-            if (endSelection)
+            if (endSelection) {
                 break;
+            }
+
+            if (visited.size() > 100) {
+                boolean x = false;
+                assert false;
+            }
         }
 
-        int winner = rollOut(current);
-        for (SearchNode node : visited) {
-            node.updateStats(winner);
-        }
+        rollOut(current, visited);
     }
 
-    private int rollOut(SearchNode node) {
+    int rollOut(SearchNode node, List<SearchNode> visited) {
         if (node.getGameContext().gameDecided()) {
             GameContext state = node.getGameContext();
             return state.getWinningPlayerId();
@@ -100,7 +109,8 @@ class ActionNode extends SearchNode {
 
         GameContext simulation = node.getGameContext().clone();
         for (Player player : simulation.getPlayers()) {
-            player.setBehaviour(new PlayRandomBehaviour());
+            //player.setBehaviour(new PlayRandomBehaviour());
+            player.setBehaviour(new GreedyOptimizeMove(new WeightedHeuristic()));
         }
 
         while (!simulation.gameDecided()) {
@@ -111,6 +121,11 @@ class ActionNode extends SearchNode {
             }
         }
 
+        int winner = simulation.getWinningPlayerId();
+        for (SearchNode v : visited) {
+            v.updateStats(winner, simulation.getTurn());
+        }
+
         return simulation.getWinningPlayerId();
     }
 
@@ -119,10 +134,8 @@ class ActionNode extends SearchNode {
         super.dump(level);
         System.out.println(children.size() + " of " + actions.size() +
                            " :: p" + getGameContext().getActivePlayerId() +
-                           ", " + getGameContext().getActivePlayer().getMana() +
-                           "mana, " + getGameContext().getActivePlayer().getHero().getHp() +
                            " --> " + children.size() +
-                           " (hash: " + getSearchState().hashCode() + ")");
+                           " (hash: " + getSearchState().hashCode() + ", use count: " + useCount + ")");
         for (ChanceNode child : children) {
             child.dump(level + 1);
         }

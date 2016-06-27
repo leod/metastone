@@ -49,14 +49,15 @@ class ChanceNode extends SearchNode {
                 return child;
         }
 
-        ActionNode child = getSearchContext().addActionNode(nextSearchState, actions);
+        ActionNode child = getSearchContext().getActionNode(nextSearchState, actions);
         outcomeNodes.add(child);
 
         return child;
     }
 
     private int getMaxOutcomes() {
-        return (int) Math.pow(getVisits(), 0.2) + 2;
+        return 5;
+        //return (int) Math.pow(getVisits(), 0.2) + 2;
     }
 
     @Override
@@ -65,7 +66,7 @@ class ChanceNode extends SearchNode {
     }
 
     @Override
-    SearchNode select(ITreePolicy policy, List<SearchNode> visited) {
+    SearchNode select(List<SearchNode> visited) {
         if (outcomeNodes.size() >= getMaxOutcomes())
             return outcomeNodes.get(ThreadLocalRandom.current().nextInt(outcomeNodes.size()));
 
@@ -74,7 +75,7 @@ class ChanceNode extends SearchNode {
             boolean x = nextGameContext.equals(getGameContext());
         }*/
 
-        TreeBehaviour behaviour = new TreeBehaviour(policy, this, visited);
+        TreeBehaviour behaviour = new TreeBehaviour(this, visited);
 
         try {
             nextGameContext.getActivePlayer().setBehaviour(behaviour);
@@ -83,17 +84,7 @@ class ChanceNode extends SearchNode {
             if (action.getActionType() == ActionType.END_TURN)
                 nextGameContext.startTurn(nextGameContext.getActivePlayerId());
 
-            /*if (action.getActionType() == ActionType.SUMMON) {
-                GameContext nextGameContext2 = getGameContext().clone();
-                nextGameContext2.getLogic().performGameAction(nextGameContext2.getActivePlayerId(), action);
-
-                if (!nextGameContext.equals(nextGameContext2)) {
-                    boolean x;
-                }
-            }*/
-
             if (nextGameContext.getValidActions().isEmpty()) {
-                //System.out.println("asdf " + action);
                 nextGameContext.endTurn();
                 nextGameContext.startTurn(nextGameContext.getActivePlayerId());
             }
@@ -103,16 +94,31 @@ class ChanceNode extends SearchNode {
             throw e;
         }
 
-        if (behaviour.getSelection() != null)
-            return behaviour.getSelection();
-        else
+        if (behaviour.getSelection() != null) {
+            // Our action triggered a battlecry or discover action selection
+
+            // Valid battlecry actions or discover card actions
+            ActionNode child = behaviour.getOutcomeNode();
+
+            // The action chosen inside TreeBehaviour
+            ChanceNode childOfChild = behaviour.getSelection();
+
+            // Outcome for the chosen action
+            ActionNode childOfChildOfChild = childOfChild.getOutcomeNode(nextGameContext, nextGameContext.getValidActions());
+
+            visited.add(child);
+            visited.add(childOfChild);
+
+            return childOfChildOfChild;
+        } else {
             return getOutcomeNode(nextGameContext, nextGameContext.getValidActions());
+        }
     }
 
     @Override
     void dump(int level) {
         super.dump(level);
-        System.out.println(action + " ==> " + outcomeNodes.size() + " (vs " + getMaxOutcomes() + ")");
+        System.out.println(action + " ==> " + outcomeNodes.size());
         for (ActionNode outcome : outcomeNodes)
             outcome.dump(level + 1);
     }
