@@ -42,6 +42,8 @@ public class Player extends CustomCloneable {
 
 	private IBehaviour behaviour;
 
+	private int drawnCards;
+
 	private Player(Player otherPlayer) {
 		this.name = otherPlayer.name;
 		this.deckName = otherPlayer.getDeckName();
@@ -50,24 +52,16 @@ public class Player extends CustomCloneable {
 		for (Minion minion : otherPlayer.getMinions()) {
 			minions.add(minion.clone());
 		}
-		for (Card card : otherPlayer.hand) {
-			this.hand.add(card.clone());
-		}
-		for (Entity entity : otherPlayer.graveyard) {
-			this.graveyard.add((Entity) entity.clone());
-		}
-		for (Entity entity : otherPlayer.setAsideZone) {
-			this.setAsideZone.add((Entity) entity.clone());
-		}
-		/*this.hand.addAll(otherPlayer.hand);
+		this.hand.addAll(otherPlayer.hand);
 		this.graveyard.addAll(otherPlayer.graveyard);
-		this.setAsideZone.addAll(otherPlayer.setAsideZone);*/
+		this.setAsideZone.addAll(otherPlayer.setAsideZone);
 		this.secrets.addAll(otherPlayer.secrets);
 		this.id = otherPlayer.id;
 		this.mana = otherPlayer.mana;
 		this.maxMana = otherPlayer.maxMana;
 		this.lockedMana = otherPlayer.lockedMana;
 		this.behaviour = otherPlayer.behaviour;
+		this.drawnCards = otherPlayer.drawnCards;
 		this.getStatistics().merge(otherPlayer.getStatistics());
 	}
 
@@ -227,6 +221,14 @@ public class Player extends CustomCloneable {
 
 	public void setMaxMana(int maxMana) {
 		this.maxMana = maxMana;
+	}
+
+	public void increaseDrawnCards() {
+		drawnCards++;
+	}
+
+	public int getDrawnCards() {
+		return drawnCards;
 	}
 
 	@Override

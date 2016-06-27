@@ -30,6 +30,10 @@ class ChanceNode extends SearchNode {
         return actionIndex;
     }
 
+    List<ActionNode> getOutcomeNodes() {
+        return outcomeNodes;
+    }
+
     ActionNode getOutcomeNode(GameContext nextGameContext, List<GameAction> actions) {
         SearchState nextSearchState = new SearchState(nextGameContext);
 

@@ -12,19 +12,27 @@ import net.demilich.metastone.game.actions.GameAction;
 import net.demilich.metastone.game.behaviour.Behaviour;
 import net.demilich.metastone.game.behaviour.PlayRandomBehaviour;
 import net.demilich.metastone.game.cards.Card;
+import net.demilich.metastone.game.logic.Determinization;
 import net.demilich.metastone.game.logic.GameLogic;
 
 public class MonteCarloTreeSearch extends Behaviour {
 	//private final static Logger logger = LoggerFactory.getLogger(MonteCarloTreeSearch.class);
 
-	private static final int ITERATIONS = 500;
+	private static final int ITERATIONS = 250;
+
+	private int nesting = 0;
+
+	private int nEnsembles = 12;
+	private ActionNode[] roots = new ActionNode[nEnsembles];
+
+	private int previousTurn = -1;
+	private List<GameAction> previousValidActions = null;
+	private int previousActionIndex = -1;
 
 	private ExecutorService executor;
 
-    private int nesting = 0;
-
 	public MonteCarloTreeSearch() {
-		executor = Executors.newFixedThreadPool(4);
+		executor = Executors.newFixedThreadPool(6);
 	}
 
 	@Override
@@ -59,22 +67,42 @@ public class MonteCarloTreeSearch extends Behaviour {
 
 		nesting++;
 
-		int nEnsembles = 8;
+		int nEnsembles = 6;
 
-		ActionNode[] roots = new ActionNode[nEnsembles];
+		boolean isFollowup = gameContext.getTurn() == previousTurn;
+
+		if (isFollowup) {
+			System.out.print("FOLLOWUP VISITS: ");
+			for (int i = 0; i < nEnsembles; i++) {
+				ChanceNode chanceNode = null;
+				for (int j = 0; j < roots[i].getChildren().size(); j++) {
+					if (roots[i].getChildren().get(j).getActionIndex() == previousActionIndex)
+						chanceNode = roots[i].getChildren().get(j);
+				}
+				//ChanceNode chanceNode = roots[i].getChildren().get(previousActionIndex);
+				ActionNode outcomeNode = chanceNode.getOutcomeNode(gameContext, previousValidActions);
+				roots[i] = outcomeNode;
+				if (roots[i].getVisits() == 0) {
+					ActionNode someOutcomeNode = chanceNode.getOutcomeNodes().get(0);
+					Determinization det = someOutcomeNode.getGameContext().getDeterminization();
+					roots[i].getGameContext().setDeterminization(det);
+				}
+				System.out.print(roots[i].getVisits() + " ");
+			}
+			System.out.println("");;
+		} else {
+			for (int i = 0; i < nEnsembles; i++) {
+				UctPolicy treePolicy = new UctPolicy();
+				SearchContext searchContext = new SearchContext(treePolicy, 0.9);
+				GameContext detGameContext = gameContext.determinize();
+				SearchState searchState = new SearchState(detGameContext);
+				roots[i] = searchContext.getActionNode(searchState, validActions);
+			}
+		}
 
 		List<Future<Void>> futures = new ArrayList<Future<Void>>();
 
-		GameContext[] context = new GameContext[nEnsembles];
-
 		for (int i = 0; i < nEnsembles; i++) {
-			UctPolicy treePolicy = new UctPolicy();
-			SearchContext searchContext = new SearchContext(treePolicy, 0.9);
-			GameContext detGameContext = gameContext.determinize();
-			context[i] = detGameContext;
-			SearchState searchState = new SearchState(detGameContext);
-			roots[i] = searchContext.getActionNode(searchState, validActions);
-
 			futures.add(executor.submit(new ProcessTask(roots[i])));
 		}
 
@@ -186,6 +214,10 @@ public class MonteCarloTreeSearch extends Behaviour {
 		int choice = maxReward;
 
 		System.out.println("RESULT: MCTS selected best action " + validActions.get(choice).toString());
+
+		previousTurn = gameContext.getTurn();
+		previousValidActions = validActions;
+		previousActionIndex = choice;
 
 		nesting--;
 

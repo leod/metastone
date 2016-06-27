@@ -79,8 +79,8 @@ public class GameContext implements Cloneable, IDisposable {
 		if (winner != null && that.winner == null) return false;
 		if (winner != null && winner.getId() != that.winner.getId()) return false;
 		if (result != that.result) return false;
-		if (determinization != null && that.determinization == null) return false;
-		if (determinization != null && determinization.getNumDrawnCards() != that.determinization.getNumDrawnCards()) return false;
+		//if (determinization != null && that.determinization == null) return false;
+		//if (determinization != null && determinization.getNumDrawnCards() != that.determinization.getNumDrawnCards()) return false;
 		return turnState == that.turnState;
 	}
 
@@ -93,7 +93,7 @@ public class GameContext implements Cloneable, IDisposable {
 		result1 = 31 * result1 + (turnState != null ? turnState.hashCode() : 0);
 		result1 = 31 * result1 + turn;
 		result1 = 31 * result1 + actionsThisTurn;
-		result1 = 31 * result1 + (determinization != null ? determinization.getNumDrawnCards() : 0);
+		//result1 = 31 * result1 + (determinization != null ? determinization.getNumDrawnCards() : 0);
 		return result1;
 	}
 

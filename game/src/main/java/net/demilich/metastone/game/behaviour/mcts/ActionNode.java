@@ -109,8 +109,8 @@ class ActionNode extends SearchNode {
 
         GameContext simulation = node.getGameContext().clone();
         for (Player player : simulation.getPlayers()) {
-            //player.setBehaviour(new PlayRandomBehaviour());
-            player.setBehaviour(new GreedyOptimizeMove(new WeightedHeuristic()));
+            player.setBehaviour(new PlayRandomBehaviour());
+            //player.setBehaviour(new GreedyOptimizeMove(new WeightedHeuristic()));
         }
 
         while (!simulation.gameDecided()) {
