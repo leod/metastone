@@ -32,7 +32,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 	private ExecutorService executor;
 
 	public MonteCarloTreeSearch() {
-		executor = Executors.newFixedThreadPool(6);
+		executor = Executors.newFixedThreadPool(4);
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 
 		nesting++;
 
-		int nEnsembles = 6;
+		int nEnsembles = 4;
 
 		boolean isFollowup = gameContext.getTurn() == previousTurn;
 

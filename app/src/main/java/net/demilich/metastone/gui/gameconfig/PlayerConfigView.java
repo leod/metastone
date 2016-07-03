@@ -20,6 +20,7 @@ import net.demilich.metastone.game.behaviour.GreedyOptimizeMove;
 import net.demilich.metastone.game.behaviour.IBehaviour;
 import net.demilich.metastone.game.behaviour.NoAggressionBehaviour;
 import net.demilich.metastone.game.behaviour.PlayRandomBehaviour;
+import net.demilich.metastone.game.behaviour.heuristic.NeuralNetworkHeuristic;
 import net.demilich.metastone.game.behaviour.heuristic.WeightedHeuristic;
 import net.demilich.metastone.game.behaviour.human.HumanBehaviour;
 import net.demilich.metastone.game.behaviour.mcts.MonteCarloTreeSearch;
@@ -161,6 +162,12 @@ public class PlayerConfigView extends VBox {
 		}
 
 		behaviourList.add(new GameStateValueBehaviour());
+
+		try {
+			behaviourList.add(new GameStateValueBehaviour(new NeuralNetworkHeuristic("model"), "nn"));
+		} catch (Exception e) {
+			System.err.println("Error while loading model: " + e);
+		}
 
 		if (selectionHint == PlayerConfigType.OPPONENT) {
 			behaviourList.add(new HumanBehaviour());

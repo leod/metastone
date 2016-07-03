@@ -1,5 +1,6 @@
 package net.demilich.metastone.gui.simulationmode;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -8,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import net.demilich.metastone.game.GameStateLogger;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +30,12 @@ public class SimulateGamesCommand extends SimpleCommand<GameNotification> {
 
 	private class PlayGameTask implements Callable<Void> {
 
+		//private GameStateLogger logger;
+		private int id;
 		private final GameConfig gameConfig;
 
-		public PlayGameTask(GameConfig gameConfig) {
+		public PlayGameTask(int id, GameConfig gameConfig) {
+			this.id = id;
 			this.gameConfig = gameConfig;
 		}
 
@@ -44,8 +49,13 @@ public class SimulateGamesCommand extends SimpleCommand<GameNotification> {
 			
 			DeckFormat deckFormat = gameConfig.getDeckFormat();
 
+			GameStateLogger logger = new GameStateLogger("zoo_vs_zoo/gamelog_" + ((Integer) id).toString() + ".json");
+
 			GameContext newGame = new GameContext(player1, player2, new GameLogic(), deckFormat);
+			newGame.setGameStateLogger(logger);
 			newGame.play();
+
+			logger.log(newGame);
 
 			onGameComplete(gameConfig, newGame);
 			newGame.dispose();
@@ -72,7 +82,7 @@ public class SimulateGamesCommand extends SimpleCommand<GameNotification> {
 
 			@Override
 			public void run() {
-				int cores = Runtime.getRuntime().availableProcessors() / 2;
+				int cores = 2; //Runtime.getRuntime().availableProcessors() / 2;
 				logger.info("Starting simulation on " + cores + " cores");
 				ExecutorService executor = Executors.newFixedThreadPool(cores);
 				// ExecutorService executor =
@@ -86,7 +96,7 @@ public class SimulateGamesCommand extends SimpleCommand<GameNotification> {
 				// queue up all games as tasks
 				lastUpdate = System.currentTimeMillis();
 				for (int i = 0; i < gameConfig.getNumberOfGames(); i++) {
-					PlayGameTask task = new PlayGameTask(gameConfig);
+					PlayGameTask task = new PlayGameTask(i, gameConfig);
 					Future<Void> future = executor.submit(task);
 					futures.add(future);
 				}

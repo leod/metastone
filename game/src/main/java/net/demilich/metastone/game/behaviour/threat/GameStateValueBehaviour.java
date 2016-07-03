@@ -27,6 +27,12 @@ public class GameStateValueBehaviour extends Behaviour {
 	private String nameSuffix = "";
 
 	public GameStateValueBehaviour() {
+
+	}
+
+	public GameStateValueBehaviour(IGameStateHeuristic heuristic, String nameSuffix) {
+		this.heuristic = heuristic;
+		this.nameSuffix = nameSuffix;
 	}
 
 	public GameStateValueBehaviour(FeatureVector featureVector, String nameSuffix) {
@@ -57,6 +63,9 @@ public class GameStateValueBehaviour extends Behaviour {
 	}
 
 	private void answerTrainingData(TrainingData trainingData) {
+		if (heuristic != null)
+			return;
+
 		featureVector = trainingData != null ? trainingData.getFeatureVector() : FeatureVector.getFittest();
 		heuristic = new ThreatBasedHeuristic(featureVector);
 		nameSuffix = trainingData != null ? "(trained)" : "(untrained)";
@@ -67,7 +76,7 @@ public class GameStateValueBehaviour extends Behaviour {
 		if (featureVector != null) {
 			return new GameStateValueBehaviour(featureVector.clone(), nameSuffix);
 		}
-		return new GameStateValueBehaviour();
+		return new GameStateValueBehaviour(heuristic, nameSuffix);
 	}
 
 	@Override

@@ -53,6 +53,8 @@ public class GameContext implements Cloneable, IDisposable {
 
 	private Determinization determinization = null;
 
+	private GameStateLogger gameStateLogger = null;
+
 	public GameContext(Player player1, Player player2, GameLogic logic, DeckFormat deckFormat) {
 		this.getPlayers()[PLAYER_1] = player1;
 		player1.setId(PLAYER_1);
@@ -159,6 +161,10 @@ public class GameContext implements Cloneable, IDisposable {
 
 	public Determinization getDeterminization() {
 		return determinization;
+	}
+
+	public void setGameStateLogger(GameStateLogger gameStateLogger) {
+		this.gameStateLogger = gameStateLogger;
 	}
 
 	@Override
@@ -494,6 +500,9 @@ public class GameContext implements Cloneable, IDisposable {
 		onGameStateChanged();
 		actionsThisTurn = 0;
 		turnState = TurnState.TURN_IN_PROGRESS;
+
+		if (gameStateLogger != null)
+			gameStateLogger.log(this);
 	}
 
 	@Override
