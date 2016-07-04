@@ -1,5 +1,6 @@
 package net.demilich.metastone.game.behaviour.heuristic;
 
+import net.demilich.metastone.game.Attribute;
 import net.demilich.metastone.game.GameContext;
 import net.demilich.metastone.game.Player;
 import net.demilich.metastone.game.entities.minions.Minion;
@@ -16,15 +17,19 @@ public class NeuralNetworkHeuristic implements IGameStateHeuristic {
     private MultiLayerNetwork model;
 
     public NeuralNetworkHeuristic(String modelfile) throws IOException {
-        model = ModelSerializer.restoreMultiLayerNetwork("model2");
+        model = ModelSerializer.restoreMultiLayerNetwork("model3");
     }
 
     private void minionToFeatures(Minion m, List<Float> x) {
         x.add((float) m.getAttack());
         x.add((float) m.getHp());
+        x.add(m.getAttribute(Attribute.DIVINE_SHIELD) == null ? 0.0f : (float) (int) m.getAttribute(Attribute.DIVINE_SHIELD));
+        x.add(m.getAttribute(Attribute.TAUNT) == null ? 0.0f : (float) (int) m.getAttribute(Attribute.TAUNT));
     }
 
     private void nullMinionToFeatures(List<Float> x) {
+        x.add(0.0f);
+        x.add(0.0f);
         x.add(0.0f);
         x.add(0.0f);
     }
