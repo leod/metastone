@@ -1,66 +1,10 @@
-37features
-seed=1337
-learningRate=0.001
-nEpochs=10
-200x400x200 
-tanh,tanh,tanh
-Examples labeled as 0 classified by model as 0: 2700 times
-Examples labeled as 0 classified by model as 1: 1097 times
-Examples labeled as 1 classified by model as 0: 842 times
-Examples labeled as 1 classified by model as 1: 2669 times
-Accuracy:  0.7347
+100x100, reluxrelu, 100batch, 10epoch, 0.001lr, nll: 0.76
+200x200, reluxrelu, 100batch, 10epoch, 0.001lr, nll: 0.75
+100, relu, 100batch, 10epoch, 0.001lr, nll: 0.7462
+100x100, reluxrelu, 100batch, 10epoch, 0.001lr, sqloss: 0.51
 
-37features+shield+taunt
-seed=1337
-learningRate=0.001
-nEpochs=10
-200x400x200 
-tanh,tanh,tanh
-Examples labeled as 0 classified by model as 0: 2763 times
-Examples labeled as 0 classified by model as 1: 1034 times
-Examples labeled as 1 classified by model as 0: 918 times
-Examples labeled as 1 classified by model as 1: 2593 times
-Accuracy:  0.7329
+100x100, reluxrelu, 100batch, 20epoch, 0.001lr, norm, nll: 0.7303
+100x100, reluxrelu, 100batch, 20epoch, 0.001lr, norm, nll: 0.7425
+100x100, reluxrelu, 100batch, 50epoch, 0.001lr, norm, nll: 0.7267
 
-37features+shield+taunt-minionattack-minionhp
-seed=1337
-learningRate=0.001
-nEpochs=10
-200x400x200 
-tanh,tanh,tanh
-Examples labeled as 0 classified by model as 0: 2976 times
-Examples labeled as 0 classified by model as 1: 821 times
-Examples labeled as 1 classified by model as 0: 1875 times
-Examples labeled as 1 classified by model as 1: 1636 times
-Accuracy:  0.6311
-
-37features+shield+taunt-hp
-seed=1337
-learningRate=0.001
-nEpochs=10
-200x400x200 
-tanh,tanh,tanh
-Examples labeled as 0 classified by model as 0: 2933 times
-Examples labeled as 0 classified by model as 1: 864 times
-Examples labeled as 1 classified by model as 0: 1161 times
-Examples labeled as 1 classified by model as 1: 2350 times
-Accuracy:  0.7229
-
-37features+shield+taunt-handsize
-seed=1337
-learningRate=0.001
-nEpochs=10
-200x400x200 
-tanh,tanh,tan
-Examples labeled as 0 classified by model as 0: 2458 times
-Examples labeled as 0 classified by model as 1: 1339 times
-Examples labeled as 1 classified by model as 0: 709 times
-Examples labeled as 1 classified by model as 1: 2802 times
-Accuracy:  0.7198
-
-37features+shield+taunt
-seed=1337
-learningRate=0.001
-nEpochs=10
-400x400
-tanh,tanh
+100x100x100, reluxreluxrelu, 100batch, 50epoch, 0.001lr, norm, nll: 0.7453

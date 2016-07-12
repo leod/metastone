@@ -49,7 +49,7 @@ public class SimulateGamesCommand extends SimpleCommand<GameNotification> {
 			
 			DeckFormat deckFormat = gameConfig.getDeckFormat();
 
-			GameStateLogger logger = new GameStateLogger("zoo_vs_zoo/gamelog_" + ((Integer) id).toString() + ".json");
+			GameStateLogger logger = new GameStateLogger("zoo_vs_zoo_new/gamelog_" + ((Integer) id).toString() + ".json");
 
 			GameContext newGame = new GameContext(player1, player2, new GameLogic(), deckFormat);
 			newGame.setGameStateLogger(logger);
@@ -82,7 +82,7 @@ public class SimulateGamesCommand extends SimpleCommand<GameNotification> {
 
 			@Override
 			public void run() {
-				int cores = 2; //Runtime.getRuntime().availableProcessors() / 2;
+				int cores = 4; //Runtime.getRuntime().availableProcessors() / 2;
 				logger.info("Starting simulation on " + cores + " cores");
 				ExecutorService executor = Executors.newFixedThreadPool(cores);
 				// ExecutorService executor =
