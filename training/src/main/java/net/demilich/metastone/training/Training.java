@@ -38,35 +38,76 @@ public class Training {
     // Settings
     ModelConfig modelConfig = new ModelConfig();
 
-    // Data
-    List<DataSet> trainData, testData;
+    // Model directories
+    String method;
+    String modelName;
+
+    String rootDir;
+    String dataDir;
+    String modelsDir;
+    String modelDir;
 
     // Model configuration
+    int numInputs;
     MultiLayerConfiguration multiLayerConf;
 
     // Model
     MultiLayerNetwork model;
 
+    // Stats about training
+    double[] testAccuracy;
+    double[] testMSE;
+
     public static void main(String[] args) throws Exception {
-        Training training = new Training();
+        Training training = new Training("zoo_vs_zoo", "train_gsv");
 
-        int numCharts = 4;
-        List<Chart> charts = new ArrayList<Chart>();
+        List<DataSet> gsvTrainData = training.loadData(training.dataDir + "gsv/train/", 100000);
+        List<DataSet> gsvTestData = training.loadData(training.dataDir + "gsv/test/", 10000);
+        List<DataSet> randomTrainData = training.loadData(training.dataDir + "random/", 500000);
 
-        training.loadData("zoo_vs_zoo_new/", "zoo_vs_zoo/train/");
+        training.numInputs = gsvTrainData.get(0).numInputs();
+
+        training.createFolders();
+
         training.createModel();
-        training.train();
 
-        EvalResult trainResult = training.evaluate("train", training.trainData);
-        EvalResult testResult = training.evaluate("test", training.testData);
+        int N = 2;
+        training.testAccuracy = new double[N * training.modelConfig.nEpochs];
+        training.testMSE = new double[N * training.modelConfig.nEpochs];
 
-        String modelName = training.modelConfig.getName();
-        System.out.println("Model name: " + modelName);
+        training.train(0, randomTrainData, gsvTestData);
+        training.train(training.modelConfig.nEpochs, gsvTrainData, gsvTestData);
 
-        String modelPath = "zoo_vs_zoo_models/" + modelName + "/";
-        new File(modelPath).mkdir();
+        EvalResult trainResult = training.evaluate("gsv_train", gsvTrainData);
+        EvalResult testResult = training.evaluate("gsv_test", gsvTestData);
 
-        File[] directories = new File(modelPath).listFiles(new FileFilter() {
+        trainResult.write(training.modelDir + "eval_" + trainResult.name + ".txt");
+        testResult.write(training.modelDir + "eval_" + testResult.name + ".txt");
+
+        System.out.println("Model name: " + training.modelName);
+        System.out.println("Model dir: " + training.modelDir);
+
+        training.save(training.modelDir + "model");
+
+        training.doCharts(training.modelDir + "charts/");
+    }
+
+    Training(String root, String method) {
+        rootDir = root + "/";
+        this.method = method;
+        dataDir = rootDir + "data/";
+        modelsDir = rootDir + "models/" + method + "/";
+    }
+
+    private void createFolders() throws IOException {
+        new File(modelsDir).mkdir();
+
+        modelName = modelConfig.getName();
+        String configPath = modelsDir + modelName + "/";
+
+        new File(configPath).mkdir();
+
+        File[] directories = new File(configPath).listFiles(new FileFilter() {
             @Override
             public boolean accept(File file) {
                 return file.isDirectory();
@@ -74,43 +115,33 @@ public class Training {
         });
         int nExp = directories.length;
 
-        modelPath += nExp + 1;
-        modelPath += "_train_acc" + String.format("%.2f", trainResult.getAccuracy() * 100.0f);
-        modelPath += "_mse" + String.format("%.2f", trainResult.getMSE());
-        modelPath += "_test_acc" + String.format("%.2f", testResult.getAccuracy() * 100.0f);
-        modelPath += "_mse" + String.format("%.2f", testResult.getMSE());
-        modelPath += "/";
+        modelDir = configPath + (nExp+1) + "/";
+        new File(modelDir).mkdir();
 
-        System.out.println("Model path: " + modelPath);
-        new File(modelPath).mkdir();
-
-        training.save(modelPath + "model");
-        new File(modelPath + "charts/").mkdir();
-        training.doCharts(modelPath + "charts/");
+        new File(modelDir + "charts/").mkdir();
+        new File(modelDir + "train/").mkdir();
     }
 
-    private void loadData(String trainDataDir, String testDataDir) throws IOException {
-        System.out.println("Loading train data from " + trainDataDir);
-        trainData = TrainingData.load(trainDataDir);
-        Collections.shuffle(trainData);
-        System.out.println("Num examples: " + trainData.size());
-
-        System.out.println("Loading test data from " + testDataDir);
-        testData = TrainingData.load(testDataDir);
-        System.out.println("Num examples: " + testData.size());
+    private List<DataSet> loadData(String dataDir, int max) throws IOException {
+        System.out.println("Loading data from " + dataDir);
+        List<DataSet> data = TrainingData.load(dataDir, max);
+        System.out.println("Shuffling");
+        Collections.shuffle(data);
+        System.out.println("Num examples: " + data.size());
+        return data;
     }
 
     private void createModel() {
         System.out.println("Creating model");
 
-        multiLayerConf = modelConfig.createConfiguration(trainData.get(0).numInputs());
+        multiLayerConf = modelConfig.createConfiguration(numInputs);
         model = new MultiLayerNetwork(multiLayerConf);
         model.init();
         model.setListeners(new ScoreIterationListener(100));
         //model.setListeners(new HistogramIterationListener(1));
     }
 
-    private void train() {
+    private void train(int startN, List<DataSet> trainData, List<DataSet> testData) throws IOException {
         System.out.println("Training");
         DataSetIterator trainIter = new ListDataSetIterator(trainData, modelConfig.batchSize);
 
@@ -118,6 +149,12 @@ public class Training {
             System.out.println("Epoch " + n);
             model.fit(trainIter);
             trainIter.reset(); // TODO: Neccessary?
+
+            EvalResult testResult = evaluate("test", testData);
+            testResult.write(modelDir + "train/eval_test_" + (startN+n+1) + ".txt");
+
+            testAccuracy[startN + n] = testResult.getAccuracy();
+            testMSE[startN + n] = testResult.getMSE();
         }
     }
 
@@ -158,10 +195,33 @@ public class Training {
         System.out.println("accuracy: " + accuracy);
         System.out.println("mse: " + mse);
 
-        return new EvalResult(accuracy, mse);
+        return new EvalResult(name, accuracy, mse);
     }
 
     private void doCharts(String chartDir) throws IOException {
+        // Training charts
+        {
+            double[] xData = new double[testAccuracy.length];
+            for (int i = 0; i < xData.length; i++) xData[i] = (double) i;
+
+            {
+                Chart chart = new Chart(600, 400);
+                chart.setTitle("test_accuracy_vs_epoch");
+                chart.setXAxisTitle("epoch");
+                chart.setYAxisTitle("test accuracy");
+                chart.addSeries("accuracy", xData, testAccuracy);
+                BitmapEncoder.savePNG(chart, chartDir + "test_accuracy_vs_epoch.png");
+            }
+            {
+                Chart chart = new Chart(600, 400);
+                chart.setTitle("test_mse_vs_epoch");
+                chart.setXAxisTitle("epoch");
+                chart.setYAxisTitle("test mse");
+                chart.addSeries("mse", xData, testMSE);
+                BitmapEncoder.savePNG(chart, chartDir + "test_mse_vs_epoch.png");
+            }
+        }
+
         // HP at 30
         {
             EvalChart chart = new EvalChart("turn10_hand5_hp30_vs_hp", "hp");
@@ -187,7 +247,7 @@ public class Training {
                 List<float[]> features = new ArrayList<float[]>();
                 for (int i = 1; i <= 30; i++)
                     features.add(TrainingData.getTestFeatures(10, 1, 30, i, 5, 5));
-                chart.add("p1 hp w/ p1 active ", SeriesMarker.SQUARE, Color.ORANGE, features, model);
+                chart.add("p1 hp w/ p1 active", SeriesMarker.SQUARE, Color.ORANGE, features, model);
             }
             chart.save(chartDir);
         }
@@ -216,7 +276,7 @@ public class Training {
                 List<float[]> features = new ArrayList<float[]>();
                 for (int i = 1; i <= 30; i++)
                     features.add(TrainingData.getTestFeatures(10, 1, 15, i, 5, 5));
-                chart.add("p1 hp w/ p1 active ", SeriesMarker.SQUARE, Color.ORANGE, features, model);
+                chart.add("p1 hp w/ p1 active", SeriesMarker.SQUARE, Color.ORANGE, features, model);
             }
             chart.save(chartDir);
         }

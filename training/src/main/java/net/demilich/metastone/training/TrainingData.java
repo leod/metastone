@@ -1,6 +1,7 @@
 package net.demilich.metastone.training;
 
 import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -74,13 +75,29 @@ public class TrainingData {
         return result;
     }
 
-    static List<DataSet> load(String directory) throws IOException {
+    static List<DataSet> load(String directory, int max) throws IOException {
         File d = new File(directory);
 
         List<DataSet> result = new ArrayList<DataSet>();
 
+        int i = 0;
         for (File f : d.listFiles()) {
-            JsonObject game = new JsonParser().parse(new FileReader(f)).getAsJsonObject();
+            JsonObject game;
+            try {
+                JsonElement x = new JsonParser().parse(new FileReader(f));
+                if (x == null) {
+                    System.out.println(f.getAbsolutePath());
+                    continue;
+                }
+                if (x.isJsonNull()) {
+                    System.out.println(f.getAbsolutePath());
+                    continue;
+                }
+                game = x.getAsJsonObject();
+            }  catch (JsonSyntaxException oops) {
+                System.out.println(f.getAbsolutePath());
+                continue;
+            }
             JsonArray turns = game.get("turns").getAsJsonArray();
             int winner = game.get("winner").getAsInt();
 
@@ -96,7 +113,17 @@ public class TrainingData {
                 label[0] = winner == 0 ? 1.0f * discount : -1.0f * discount;
 
                 result.add(new DataSet(Nd4j.create(features), Nd4j.create(label)));
+
+                if (++i % 1000 == 0) {
+                    System.out.print('.');
+                    System.out.flush();
+                }
+                if (i == max)
+                    break;
             }
+
+            if (i == max)
+                break;
         }
 
         return result;

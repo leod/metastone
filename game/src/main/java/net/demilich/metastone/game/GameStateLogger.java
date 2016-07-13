@@ -29,7 +29,8 @@ public class GameStateLogger {
     }
 
     private void endGameLog(GameContext context) throws IOException {
-        assert context.getWinningPlayerId() != -1;
+        if (writer == null)
+            return;
 
         writer.endArray();
         writer.name("winner").value(context.getWinningPlayerId());

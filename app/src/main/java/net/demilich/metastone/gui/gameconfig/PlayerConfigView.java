@@ -164,7 +164,7 @@ public class PlayerConfigView extends VBox {
 		behaviourList.add(new GameStateValueBehaviour());
 
 		try {
-			behaviourList.add(new GameStateValueBehaviour(new NeuralNetworkHeuristic("model"), "nn"));
+			behaviourList.add(new GameStateValueBehaviour(new NeuralNetworkHeuristic("model"), "NN"));
 		} catch (Exception e) {
 			System.err.println("Error while loading model: " + e);
 		}
