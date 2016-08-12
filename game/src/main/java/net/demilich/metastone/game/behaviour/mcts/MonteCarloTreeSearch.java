@@ -55,7 +55,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 	public GameAction requestAction(GameContext gameContext, Player player, List<GameAction> validActions) {
 		assert nesting == 0;
 
-        System.out.println("ACTIONS:" + validActions.toString());
+        //System.out.println("ACTIONS:" + validActions.toString());
 
 		if (validActions.isEmpty())
 			return null;
@@ -67,9 +67,9 @@ public class MonteCarloTreeSearch extends Behaviour {
 
 		nesting++;
 
-		int nEnsembles = 4;
-
-		boolean isFollowup = gameContext.getTurn() == previousTurn;
+        int nEnsembles = 4;
+		//boolean isFollowup = gameContext.getTurn() == previousTurn;
+		boolean isFollowup = false;
 
 		if (isFollowup) {
 			System.out.print("FOLLOWUP VISITS: ");
@@ -129,12 +129,12 @@ public class MonteCarloTreeSearch extends Behaviour {
 			}
 		}
 
-		System.out.println("");
+		//System.out.println("");
 
-		/*for (int i = 0; i < nEnsembles; i++) {
+		for (int i = 0; i < nEnsembles; i++) {
 			System.out.println("* TREE #" + i);
 			roots[i].dump(1);
-		}*/
+		}
 
 		double[] actionScores = new double[validActions.size()];
 		double[] actionVisits = new double[validActions.size()];
@@ -157,9 +157,11 @@ public class MonteCarloTreeSearch extends Behaviour {
 		for (int i = 0; i < nEnsembles; i++) {
 			double bestReward = Float.NEGATIVE_INFINITY;
 			int bestActionIndex = -1;
+            System.out.println(i);
 
             for (ChanceNode child : roots[i].getChildren()) {
 				double reward = child.getScore() / child.getVisits();
+                System.out.println(reward);
 				if (reward > bestReward) {
 					bestActionIndex = child.getActionIndex();
 					bestReward = reward;
@@ -184,7 +186,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 				maxReward = i;
 		}
 
-		System.out.print("VOTES: ");
+		/*System.out.print("VOTES: ");
 		for (int i = 0; i < validActions.size(); i++) {
 			if (i == maxVotes) System.out.print("[");
 			System.out.print(votes[i]);
@@ -209,11 +211,11 @@ public class MonteCarloTreeSearch extends Behaviour {
 			if (i == maxReward) System.out.print("]");
 			System.out.print(" ");
 		}
-		System.out.println("");
+		System.out.println("");*/
 
 		int choice = maxReward;
 
-		System.out.println("RESULT: MCTS selected best action " + validActions.get(choice).toString());
+		//System.out.println("RESULT: MCTS selected best action " + validActions.get(choice).toString());
 
 		previousTurn = gameContext.getTurn();
 		previousValidActions = validActions;
@@ -234,10 +236,11 @@ public class MonteCarloTreeSearch extends Behaviour {
 		@Override
 		public Void call() throws Exception {
 			for (int k = 0; k < ITERATIONS; k++) {
+                System.out.print('d');
                 root.process();
 
-				if (k % 1000 == 0)
-					System.out.print(".");
+				//if (k % 1000 == 0)
+					//System.out.print(".");
 			}
 
 			return null;

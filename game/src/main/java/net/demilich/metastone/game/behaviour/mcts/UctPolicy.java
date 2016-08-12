@@ -15,6 +15,7 @@ class UctPolicy implements ITreePolicy {
 		double bestValue = Double.NEGATIVE_INFINITY;
 		for (ChanceNode child : parent.getChildren()) {
 			if (child.getVisits() == 0) {
+				assert false;
 				boolean x = false;
 
 			}
@@ -31,6 +32,7 @@ class UctPolicy implements ITreePolicy {
 		}
 
 		if (selected == null) {
+			assert false;
 			boolean x;
 		}
 		//assert selected != null;

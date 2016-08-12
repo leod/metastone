@@ -17,8 +17,8 @@ public class NeuralNetworkHeuristic implements IGameStateHeuristic {
     private MultiLayerNetwork model;
 
     public NeuralNetworkHeuristic(String modelfile) throws IOException {
-        String m = "zoo_vs_zoo_models/10x10_tanh-tanh-tanh_lr0.001000_batch100_epoch30/1_train_acc75.35_mse0.64_test_acc74.31_mse0.66/model";
-        model = ModelSerializer.restoreMultiLayerNetwork(m);
+        //String m = "/home/leos/src/metastone/zoo_vs_zoo/models/train_gsv/10x10_tanh-tanh-tanh_lr0.001000_batch100_epoch50/1/model";
+        model = ModelSerializer.restoreMultiLayerNetwork(modelfile);
     }
 
     private void minionToFeatures(Minion m, List<Float> x) {

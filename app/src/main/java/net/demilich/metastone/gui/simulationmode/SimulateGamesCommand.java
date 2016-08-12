@@ -49,13 +49,13 @@ public class SimulateGamesCommand extends SimpleCommand<GameNotification> {
 			
 			DeckFormat deckFormat = gameConfig.getDeckFormat();
 
-			GameStateLogger logger = new GameStateLogger("zoo_vs_zoo_random/gamelog_" + ((Integer) id).toString() + ".json");
+			//GameStateLogger logger = new GameStateLogger("zoo_vs_zoo_random/gamelog_" + ((Integer) id).toString() + ".json");
 
 			GameContext newGame = new GameContext(player1, player2, new GameLogic(), deckFormat);
-			newGame.setGameStateLogger(logger);
+			//newGame.setGameStateLogger(logger);
 			newGame.play();
 
-			logger.log(newGame);
+			//logger.log(newGame);
 
 			onGameComplete(gameConfig, newGame);
 			newGame.dispose();

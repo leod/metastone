@@ -61,9 +61,9 @@ public class Training {
     public static void main(String[] args) throws Exception {
         Training training = new Training("zoo_vs_zoo", "train_gsv");
 
-        List<DataSet> gsvTrainData = training.loadData(training.dataDir + "gsv/train/", 100000);
-        List<DataSet> gsvTestData = training.loadData(training.dataDir + "gsv/test/", 10000);
-        List<DataSet> randomTrainData = training.loadData(training.dataDir + "random/", 500000);
+        List<DataSet> gsvTrainData = training.loadData(training.dataDir + "gsv/train/", 0);
+        List<DataSet> gsvTestData = training.loadData(training.dataDir + "gsv/test/", 0);
+        //List<DataSet> randomTrainData = training.loadData(training.dataDir + "random/", 800000);
 
         training.numInputs = gsvTrainData.get(0).numInputs();
 
@@ -71,12 +71,13 @@ public class Training {
 
         training.createModel();
 
-        int N = 2;
+        int N = 1;
         training.testAccuracy = new double[N * training.modelConfig.nEpochs];
         training.testMSE = new double[N * training.modelConfig.nEpochs];
 
-        training.train(0, randomTrainData, gsvTestData);
-        training.train(training.modelConfig.nEpochs, gsvTrainData, gsvTestData);
+        training.train(0, gsvTrainData, gsvTestData);
+        //training.train(training.modelConfig.nEpochs, gsvTrainData, gsvTestData);
+        //training.train(2*training.modelConfig.nEpochs, gsvTrainData, gsvTestData);
 
         EvalResult trainResult = training.evaluate("gsv_train", gsvTrainData);
         EvalResult testResult = training.evaluate("gsv_test", gsvTestData);

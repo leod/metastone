@@ -11,11 +11,11 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 public class ModelConfig {
     int seed = 1337;
-    int[] hidden = { 50, 50 };
-    String[] activation = { "tanh", "tanh", "tanh" };
+    int[] hidden = { 2, };
+    String[] activation = { "tanh", "tanh" };
     double learningRate = 0.001;
     int batchSize = 100;
-    int nEpochs = 5;
+    int nEpochs = 50;
 
     MultiLayerConfiguration createConfiguration(int numInputs) {
         NeuralNetConfiguration.Builder builder = new NeuralNetConfiguration.Builder()

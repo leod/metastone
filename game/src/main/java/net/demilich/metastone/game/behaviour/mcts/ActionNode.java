@@ -86,7 +86,12 @@ class ActionNode extends SearchNode {
         visited.add(this);
         while (!current.isTerminal()) {
             boolean endSelection = current.getEndSelection();
+            SearchNode prev = current;
             current = current.select(visited);
+            if ( current == null )
+                System.out.println(prev.getClass().getName());
+            assert current != null;
+
             visited.add(current);
             if (endSelection) {
                 break;
